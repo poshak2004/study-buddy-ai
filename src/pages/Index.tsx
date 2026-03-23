@@ -3,10 +3,11 @@ import { SessionTimer } from "@/components/SessionTimer";
 import { MetricCard } from "@/components/MetricCard";
 import { DropoffBadge } from "@/components/DropoffBadge";
 import { AiInsight } from "@/components/AiInsight";
+import { SessionHistory } from "@/components/SessionHistory";
 import { BookOpen } from "lucide-react";
 
 export default function Index() {
-  const { isActive, elapsed, startSession, endSession, metrics } = useStudySessions();
+  const { sessions, isActive, elapsed, startSession, endSession, metrics } = useStudySessions();
   const { activeDays, avgDuration, daysSinceLastSession, consistencyScore, isHighRisk } = metrics;
 
   return (
@@ -51,6 +52,11 @@ export default function Index() {
             value={daysSinceLastSession !== null ? `${daysSinceLastSession}d ago` : "—"}
             variant={daysSinceLastSession !== null && daysSinceLastSession >= 2 ? "danger" : "default"}
           />
+        </div>
+
+        {/* Session History */}
+        <div className="mb-6">
+          <SessionHistory sessions={sessions} />
         </div>
 
         {/* AI Insight */}
