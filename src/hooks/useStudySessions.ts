@@ -6,6 +6,10 @@ export interface StudySession {
 }
 
 const STORAGE_KEY = "study-sessions";
+const STREAK_KEY = "study-streak";
+const STREAK_DATE_KEY = "study-streak-date";
+
+export type StreakResult = { streak: number; increased: boolean } | null;
 
 function loadSessions(): StudySession[] {
   try {
