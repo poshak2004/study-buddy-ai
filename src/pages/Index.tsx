@@ -4,11 +4,26 @@ import { MetricCard } from "@/components/MetricCard";
 import { DropoffBadge } from "@/components/DropoffBadge";
 import { AiInsight } from "@/components/AiInsight";
 import { SessionHistory } from "@/components/SessionHistory";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Flame } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect, useRef } from "react";
 
 export default function Index() {
-  const { sessions, isActive, elapsed, startSession, endSession, metrics } = useStudySessions();
+  const { sessions, isActive, elapsed, startSession, endSession, metrics, streak, lastStreakResult } = useStudySessions();
   const { activeDays, avgDuration, daysSinceLastSession, consistencyScore, isHighRisk } = metrics;
+  const { toast } = useToast();
+  const prevStreakResult = useRef(lastStreakResult);
+
+  useEffect(() => {
+    if (lastStreakResult && lastStreakResult !== prevStreakResult.current) {
+      toast({
+        description: lastStreakResult.increased
+          ? `Day ${lastStreakResult.streak} streak — don't break it`
+          : "New start — let's build consistency",
+      });
+    }
+    prevStreakResult.current = lastStreakResult;
+  }, [lastStreakResult, toast]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,6 +37,14 @@ export default function Index() {
         {/* Timer */}
         <div className="mb-6">
           <SessionTimer isActive={isActive} elapsed={elapsed} onStart={startSession} onEnd={endSession} />
+        </div>
+
+        {/* Streak */}
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
+          <Flame className="h-4 w-4 text-primary" />
+          <span className="text-sm font-mono font-medium text-primary">
+            Current Streak: {streak} {streak === 1 ? "day" : "days"}
+          </span>
         </div>
 
         {/* Drop-off status */}
