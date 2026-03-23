@@ -54,6 +54,11 @@ export default function Index() {
           />
         </div>
 
+        {/* Session History */}
+        <div className="mb-6">
+          <SessionHistory sessions={sessions} />
+        </div>
+
         {/* AI Insight */}
         <AiInsight
           activeDays={activeDays}
