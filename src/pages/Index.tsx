@@ -39,6 +39,14 @@ export default function Index() {
           <SessionTimer isActive={isActive} elapsed={elapsed} onStart={startSession} onEnd={endSession} />
         </div>
 
+        {/* Streak */}
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
+          <Flame className="h-4 w-4 text-primary" />
+          <span className="text-sm font-mono font-medium text-primary">
+            Current Streak: {streak} {streak === 1 ? "day" : "days"}
+          </span>
+        </div>
+
         {/* Drop-off status */}
         <div className="mb-6">
           <DropoffBadge isHighRisk={isHighRisk} />
