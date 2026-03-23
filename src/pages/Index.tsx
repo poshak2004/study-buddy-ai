@@ -7,7 +7,7 @@ import { SessionHistory } from "@/components/SessionHistory";
 import { BookOpen } from "lucide-react";
 
 export default function Index() {
-  const { isActive, elapsed, startSession, endSession, metrics } = useStudySessions();
+  const { sessions, isActive, elapsed, startSession, endSession, metrics } = useStudySessions();
   const { activeDays, avgDuration, daysSinceLastSession, consistencyScore, isHighRisk } = metrics;
 
   return (
