@@ -24,16 +24,53 @@ function saveSessions(sessions: StudySession[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
 }
 
+function loadStreak(): number {
+  try {
+    return parseInt(localStorage.getItem(STREAK_KEY) || "0", 10);
+  } catch {
+    return 0;
+  }
+}
+
+function loadStreakDate(): string | null {
+  try {
+    return localStorage.getItem(STREAK_DATE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function getDateStr(d: Date = new Date()): string {
+  return d.toISOString().split("T")[0];
+}
+
+function getYesterdayStr(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return getDateStr(d);
+}
+
 export function useStudySessions() {
   const [sessions, setSessions] = useState<StudySession[]>(loadSessions);
   const [isActive, setIsActive] = useState(false);
   const [elapsed, setElapsed] = useState(0); // seconds
+  const [streak, setStreak] = useState(loadStreak);
+  const [streakDate, setStreakDate] = useState<string | null>(loadStreakDate);
+  const [lastStreakResult, setLastStreakResult] = useState<StreakResult>(null);
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     saveSessions(sessions);
   }, [sessions]);
+
+  useEffect(() => {
+    localStorage.setItem(STREAK_KEY, String(streak));
+  }, [streak]);
+
+  useEffect(() => {
+    if (streakDate) localStorage.setItem(STREAK_DATE_KEY, streakDate);
+  }, [streakDate]);
 
   const startSession = useCallback(() => {
     startTimeRef.current = Date.now();
@@ -49,15 +86,40 @@ export function useStudySessions() {
   const endSession = useCallback(() => {
     if (!startTimeRef.current) return;
     const durationMin = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 60000));
-    const session: StudySession = {
-      date: new Date().toISOString().split("T")[0],
-      duration: durationMin,
-    };
+    const today = getDateStr();
+    const session: StudySession = { date: today, duration: durationMin };
     setSessions((prev) => [...prev, session]);
     setIsActive(false);
     setElapsed(0);
     startTimeRef.current = null;
     if (intervalRef.current) clearInterval(intervalRef.current);
+
+    // Streak logic
+    setStreakDate((prevDate) => {
+      if (prevDate === today) {
+        // Already studied today, no streak change
+        setLastStreakResult((prev) => {
+          const current = loadStreak();
+          return { streak: current, increased: false };
+        });
+        return prevDate;
+      }
+
+      const yesterday = getYesterdayStr();
+      if (prevDate === yesterday) {
+        // Consecutive day
+        setStreak((prev) => {
+          const next = prev + 1;
+          setLastStreakResult({ streak: next, increased: true });
+          return next;
+        });
+      } else {
+        // Gap — reset
+        setStreak(1);
+        setLastStreakResult({ streak: 1, increased: prevDate === null ? true : false });
+      }
+      return today;
+    });
   }, []);
 
   // Metrics
