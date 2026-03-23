@@ -3,6 +3,7 @@ import { SessionTimer } from "@/components/SessionTimer";
 import { MetricCard } from "@/components/MetricCard";
 import { DropoffBadge } from "@/components/DropoffBadge";
 import { AiInsight } from "@/components/AiInsight";
+import { SessionHistory } from "@/components/SessionHistory";
 import { BookOpen } from "lucide-react";
 
 export default function Index() {
