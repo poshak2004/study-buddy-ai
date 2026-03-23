@@ -152,6 +152,8 @@ export function useStudySessions() {
     elapsed,
     startSession,
     endSession,
+    streak,
+    lastStreakResult,
     metrics: {
       activeDays,
       avgDuration,
