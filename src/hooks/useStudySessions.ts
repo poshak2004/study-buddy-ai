@@ -133,6 +133,16 @@ export function useStudySessions() {
     });
   }, []);
 
+  const submitReflection = useCallback((reflection: "focused" | "distracted") => {
+    setSessions((prev) => {
+      if (prev.length === 0) return prev;
+      const updated = [...prev];
+      updated[updated.length - 1] = { ...updated[updated.length - 1], reflection };
+      return updated;
+    });
+    setPendingReflection(false);
+  }, []);
+
   // Metrics
   const now = new Date();
   const sevenDaysAgo = new Date(now);
@@ -165,6 +175,8 @@ export function useStudySessions() {
     endSession,
     streak,
     lastStreakResult,
+    pendingReflection,
+    submitReflection,
     metrics: {
       activeDays,
       avgDuration,

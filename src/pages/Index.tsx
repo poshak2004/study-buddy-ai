@@ -4,12 +4,16 @@ import { MetricCard } from "@/components/MetricCard";
 import { DropoffBadge } from "@/components/DropoffBadge";
 import { AiInsight } from "@/components/AiInsight";
 import { SessionHistory } from "@/components/SessionHistory";
+import { WeeklyLine } from "@/components/WeeklyLine";
 import { BookOpen, Flame } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useRef } from "react";
 
 export default function Index() {
-  const { sessions, isActive, elapsed, startSession, endSession, metrics, streak, lastStreakResult } = useStudySessions();
+  const {
+    sessions, isActive, elapsed, startSession, endSession,
+    metrics, streak, lastStreakResult, pendingReflection, submitReflection,
+  } = useStudySessions();
   const { activeDays, avgDuration, daysSinceLastSession, consistencyScore, isHighRisk } = metrics;
   const { toast } = useToast();
   const prevStreakResult = useRef(lastStreakResult);
@@ -36,7 +40,14 @@ export default function Index() {
 
         {/* Timer */}
         <div className="mb-6">
-          <SessionTimer isActive={isActive} elapsed={elapsed} onStart={startSession} onEnd={endSession} />
+          <SessionTimer
+            isActive={isActive}
+            elapsed={elapsed}
+            onStart={startSession}
+            onEnd={endSession}
+            showReflection={pendingReflection}
+            onReflectionSubmit={submitReflection}
+          />
         </div>
 
         {/* Streak */}
@@ -45,6 +56,11 @@ export default function Index() {
           <span className="text-sm font-mono font-medium text-primary">
             Current Streak: {streak} {streak === 1 ? "day" : "days"}
           </span>
+        </div>
+
+        {/* Weekly consistency line */}
+        <div className="mb-6">
+          <WeeklyLine activeDays={activeDays} />
         </div>
 
         {/* Drop-off status */}
