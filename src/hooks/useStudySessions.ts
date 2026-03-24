@@ -59,8 +59,10 @@ export function useStudySessions() {
   const [streak, setStreak] = useState(loadStreak);
   const [streakDate, setStreakDate] = useState<string | null>(loadStreakDate);
   const [lastStreakResult, setLastStreakResult] = useState<StreakResult>(null);
+  const [pendingReflection, setPendingReflection] = useState(false);
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingIntentRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     saveSessions(sessions);
