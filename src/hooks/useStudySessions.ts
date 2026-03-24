@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 export interface StudySession {
   date: string;
   duration: number; // minutes
+  intent?: string;
+  reflection?: "focused" | "distracted";
 }
 
 const STORAGE_KEY = "study-sessions";
