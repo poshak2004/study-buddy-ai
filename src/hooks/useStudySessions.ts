@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 export interface StudySession {
   date: string;
   duration: number; // minutes
+  intent?: string;
+  reflection?: "focused" | "distracted";
 }
 
 const STORAGE_KEY = "study-sessions";
@@ -57,8 +59,10 @@ export function useStudySessions() {
   const [streak, setStreak] = useState(loadStreak);
   const [streakDate, setStreakDate] = useState<string | null>(loadStreakDate);
   const [lastStreakResult, setLastStreakResult] = useState<StreakResult>(null);
+  const [pendingReflection, setPendingReflection] = useState(false);
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingIntentRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     saveSessions(sessions);
@@ -72,7 +76,8 @@ export function useStudySessions() {
     if (streakDate) localStorage.setItem(STREAK_DATE_KEY, streakDate);
   }, [streakDate]);
 
-  const startSession = useCallback(() => {
+  const startSession = useCallback((intent?: string) => {
+    pendingIntentRef.current = intent;
     startTimeRef.current = Date.now();
     setIsActive(true);
     setElapsed(0);
@@ -87,12 +92,18 @@ export function useStudySessions() {
     if (!startTimeRef.current) return;
     const durationMin = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 60000));
     const today = getDateStr();
-    const session: StudySession = { date: today, duration: durationMin };
+    const session: StudySession = {
+      date: today,
+      duration: durationMin,
+      intent: pendingIntentRef.current,
+    };
     setSessions((prev) => [...prev, session]);
     setIsActive(false);
     setElapsed(0);
     startTimeRef.current = null;
+    pendingIntentRef.current = undefined;
     if (intervalRef.current) clearInterval(intervalRef.current);
+    setPendingReflection(true);
 
     // Streak logic
     setStreakDate((prevDate) => {
@@ -120,6 +131,16 @@ export function useStudySessions() {
       }
       return today;
     });
+  }, []);
+
+  const submitReflection = useCallback((reflection: "focused" | "distracted") => {
+    setSessions((prev) => {
+      if (prev.length === 0) return prev;
+      const updated = [...prev];
+      updated[updated.length - 1] = { ...updated[updated.length - 1], reflection };
+      return updated;
+    });
+    setPendingReflection(false);
   }, []);
 
   // Metrics
@@ -154,6 +175,8 @@ export function useStudySessions() {
     endSession,
     streak,
     lastStreakResult,
+    pendingReflection,
+    submitReflection,
     metrics: {
       activeDays,
       avgDuration,
