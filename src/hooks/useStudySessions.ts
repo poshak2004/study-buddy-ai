@@ -76,7 +76,8 @@ export function useStudySessions() {
     if (streakDate) localStorage.setItem(STREAK_DATE_KEY, streakDate);
   }, [streakDate]);
 
-  const startSession = useCallback(() => {
+  const startSession = useCallback((intent?: string) => {
+    pendingIntentRef.current = intent;
     startTimeRef.current = Date.now();
     setIsActive(true);
     setElapsed(0);
