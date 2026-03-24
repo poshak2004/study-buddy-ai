@@ -92,12 +92,18 @@ export function useStudySessions() {
     if (!startTimeRef.current) return;
     const durationMin = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 60000));
     const today = getDateStr();
-    const session: StudySession = { date: today, duration: durationMin };
+    const session: StudySession = {
+      date: today,
+      duration: durationMin,
+      intent: pendingIntentRef.current,
+    };
     setSessions((prev) => [...prev, session]);
     setIsActive(false);
     setElapsed(0);
     startTimeRef.current = null;
+    pendingIntentRef.current = undefined;
     if (intervalRef.current) clearInterval(intervalRef.current);
+    setPendingReflection(true);
 
     // Streak logic
     setStreakDate((prevDate) => {
